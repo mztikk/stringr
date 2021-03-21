@@ -19,8 +19,7 @@ pub fn splitn(input: &String, n: usize) -> Vec<String> {
     while i < input.len() {
         let true_len = cmp::min(n, input.len() - i);
 
-        let slice = &input[i..(i + true_len)];
-        rtn.push(slice.to_string());
+        rtn.push(input[i..(i + true_len)].to_string());
         i += true_len;
     }
 
