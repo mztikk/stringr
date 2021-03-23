@@ -1,4 +1,4 @@
-use std::{cmp, collections::HashSet};
+use std::{cmp, collections::HashSet, usize};
 
 use num::integer;
 
@@ -26,6 +26,25 @@ pub fn splitn(input: &String, n: usize) -> Vec<String> {
     return rtn;
 }
 
+pub fn splitn_separator(input: &String, n: usize, separator: &String) -> String {
+    if n <= 0 || separator.is_empty() {
+        return input.to_string();
+    }
+
+    let extra_size = integer::div_ceil(input.len(), n) * separator.len() - separator.len();
+    let new_size = input.len() + extra_size;
+    let mut rtn: Vec<String> = Vec::with_capacity(new_size);
+    for (i, c) in input.chars().enumerate() {
+        rtn.push(c.to_string());
+        let j = i + 1;
+        if j % n == 0 && j < input.len() {
+            rtn.push(separator.to_string());
+        }
+    }
+
+    return rtn.into_iter().collect();
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -37,5 +56,13 @@ mod tests {
     #[test]
     fn remove_whitespace() {
         assert_eq!(crate::remove_whitespace(&"t e s t".to_string()), "test")
+    }
+
+    #[test]
+    fn splitn_separator() {
+        assert_eq!(
+            crate::splitn_separator(&"AEFF??00FE".to_string(), 2, &" ".to_string()),
+            "AE FF ?? 00 FE"
+        );
     }
 }
