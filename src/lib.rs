@@ -45,6 +45,59 @@ pub fn splitn_separator(input: &String, n: usize, separator: &String) -> String 
     return rtn.into_iter().collect();
 }
 
+pub fn wildcard_match(
+    input: &String,
+    pattern: &String,
+    wildcard: &char,
+    single_wildcard: &char,
+    ignore_casing: bool,
+) -> bool {
+    let mut lookup = vec![vec![false; pattern.len() + 1]; input.len() + 1];
+    lookup[0][0] = true;
+
+    for j in 1..pattern.len() + 1 {
+        if &pattern.chars().nth(j - 1).unwrap() == wildcard {
+            lookup[0][j] = lookup[0][j - 1];
+        }
+    }
+
+    let mut i = 1;
+    while i <= input.len() {
+        let mut j = 1;
+        while j <= pattern.len() {
+            if pattern.chars().nth(j - 1).unwrap() == *wildcard {
+                lookup[i][j] = lookup[i][j - 1] || lookup[i - 1][j];
+            } else if &pattern.chars().nth(j - 1).unwrap() == single_wildcard {
+                lookup[i][j] = lookup[i - 1][j - 1];
+            } else {
+                if ignore_casing {
+                    if input.chars().nth(i - 1).unwrap().to_ascii_lowercase()
+                        == pattern.chars().nth(j - 1).unwrap().to_ascii_lowercase()
+                    {
+                        lookup[i][j] = lookup[i - 1][j - 1];
+                    } else {
+                        lookup[i][j] = false;
+                    }
+                } else if input.chars().nth(i - 1).unwrap() == pattern.chars().nth(j - 1).unwrap() {
+                    lookup[i][j] = lookup[i - 1][j - 1];
+                } else {
+                    lookup[i][j] = false;
+                }
+            }
+
+            j += 1;
+        }
+
+        i += 1;
+    }
+
+    return lookup[input.len()][pattern.len()];
+}
+
+pub fn wildcard_match_default(input: &String, pattern: &String) -> bool {
+    wildcard_match(input, pattern, &'*', &'?', false)
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -64,5 +117,29 @@ mod tests {
             crate::splitn_separator(&"AEFF??00FE".to_string(), 2, &" ".to_string()),
             "AE FF ?? 00 FE"
         );
+    }
+
+    #[test]
+    fn wildcard_match_default() {
+        assert!(crate::wildcard_match_default(
+            &"longteststring".to_string(),
+            &"*teststring".to_string()
+        ));
+        assert!(crate::wildcard_match_default(
+            &"longteststring".to_string(),
+            &"*test*".to_string()
+        ));
+        assert!(crate::wildcard_match_default(
+            &"longteststring".to_string(),
+            &"l?ngt?st?tring".to_string()
+        ));
+        assert!(crate::wildcard_match_default(
+            &"longteststring".to_string(),
+            &"longteststring".to_string()
+        ));
+        assert!(!crate::wildcard_match_default(
+            &"longteststring".to_string(),
+            &"*else".to_string()
+        ));
     }
 }
