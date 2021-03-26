@@ -2,15 +2,97 @@ use std::{cmp, collections::HashSet, usize};
 
 use num::integer;
 
-pub fn remove_chars(input: &String, chars: HashSet<char>) -> String {
+pub trait Stringr {
+    fn remove_chars(&self, chars: HashSet<char>) -> String;
+    fn remove_whitespace(&self) -> String;
+    fn splitn(&self, n: usize) -> Vec<String>;
+    fn splitn_separator(&self, n: usize, separator: &str) -> String;
+    fn wildcard_match(
+        &self,
+        pattern: &str,
+        wildcard: &char,
+        single_wildcard: &char,
+        ignore_casing: bool,
+    ) -> bool;
+}
+
+impl Stringr for String {
+    #[inline]
+    fn remove_chars(&self, chars: HashSet<char>) -> String {
+        crate::remove_chars(self, chars)
+    }
+
+    #[inline]
+    fn remove_whitespace(&self) -> String {
+        crate::remove_whitespace(self)
+    }
+
+    #[inline]
+    fn splitn(&self, n: usize) -> Vec<String> {
+        crate::splitn(self, n)
+    }
+
+    #[inline]
+    fn splitn_separator(&self, n: usize, separator: &str) -> String {
+        crate::splitn_separator(self, n, separator)
+    }
+
+    #[inline]
+    fn wildcard_match(
+        &self,
+        pattern: &str,
+        wildcard: &char,
+        single_wildcard: &char,
+        ignore_casing: bool,
+    ) -> bool {
+        crate::wildcard_match(self, pattern, wildcard, single_wildcard, ignore_casing)
+    }
+}
+
+impl Stringr for &str {
+    #[inline]
+    fn remove_chars(&self, chars: HashSet<char>) -> String {
+        crate::remove_chars(self, chars)
+    }
+
+    #[inline]
+    fn remove_whitespace(&self) -> String {
+        crate::remove_whitespace(self)
+    }
+
+    #[inline]
+    fn splitn(&self, n: usize) -> Vec<String> {
+        crate::splitn(self, n)
+    }
+
+    #[inline]
+    fn splitn_separator(&self, n: usize, separator: &str) -> String {
+        crate::splitn_separator(self, n, separator)
+    }
+
+    #[inline]
+    fn wildcard_match(
+        &self,
+        pattern: &str,
+        wildcard: &char,
+        single_wildcard: &char,
+        ignore_casing: bool,
+    ) -> bool {
+        crate::wildcard_match(self, pattern, wildcard, single_wildcard, ignore_casing)
+    }
+}
+
+#[inline]
+pub fn remove_chars(input: &str, chars: HashSet<char>) -> String {
     input.chars().filter(|c| !chars.contains(c)).collect()
 }
 
-pub fn remove_whitespace(input: &String) -> String {
+#[inline]
+pub fn remove_whitespace(input: &str) -> String {
     input.chars().filter(|c| !c.is_whitespace()).collect()
 }
 
-pub fn splitn(input: &String, n: usize) -> Vec<String> {
+pub fn splitn(input: &str, n: usize) -> Vec<String> {
     let size = integer::div_ceil(input.len(), n);
     let mut rtn = Vec::with_capacity(size);
 
@@ -26,7 +108,7 @@ pub fn splitn(input: &String, n: usize) -> Vec<String> {
     return rtn;
 }
 
-pub fn splitn_separator(input: &String, n: usize, separator: &String) -> String {
+pub fn splitn_separator(input: &str, n: usize, separator: &str) -> String {
     if n <= 0 || separator.is_empty() {
         return input.to_string();
     }
@@ -46,8 +128,8 @@ pub fn splitn_separator(input: &String, n: usize, separator: &String) -> String 
 }
 
 pub fn wildcard_match(
-    input: &String,
-    pattern: &String,
+    input: &str,
+    pattern: &str,
     wildcard: &char,
     single_wildcard: &char,
     ignore_casing: bool,
@@ -94,12 +176,13 @@ pub fn wildcard_match(
     return lookup[input.len()][pattern.len()];
 }
 
-pub fn wildcard_match_default(input: &String, pattern: &String) -> bool {
+pub fn wildcard_match_default(input: &str, pattern: &str) -> bool {
     wildcard_match(input, pattern, &'*', &'?', false)
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::Stringr;
 
     #[test]
     fn it_works() {
@@ -108,13 +191,13 @@ mod tests {
 
     #[test]
     fn remove_whitespace() {
-        assert_eq!(crate::remove_whitespace(&"t e s t".to_string()), "test")
+        assert_eq!("t e s t".remove_whitespace(), "test")
     }
 
     #[test]
     fn splitn_separator() {
         assert_eq!(
-            crate::splitn_separator(&"AEFF??00FE".to_string(), 2, &" ".to_string()),
+            crate::splitn_separator("AEFF??00FE", 2, " "),
             "AE FF ?? 00 FE"
         );
     }
@@ -122,24 +205,18 @@ mod tests {
     #[test]
     fn wildcard_match_default() {
         assert!(crate::wildcard_match_default(
-            &"longteststring".to_string(),
-            &"*teststring".to_string()
+            "longteststring",
+            "*teststring"
+        ));
+        assert!(crate::wildcard_match_default("longteststring", "*test*"));
+        assert!(crate::wildcard_match_default(
+            "longteststring",
+            "l?ngt?st?tring"
         ));
         assert!(crate::wildcard_match_default(
-            &"longteststring".to_string(),
-            &"*test*".to_string()
+            "longteststring",
+            "longteststring"
         ));
-        assert!(crate::wildcard_match_default(
-            &"longteststring".to_string(),
-            &"l?ngt?st?tring".to_string()
-        ));
-        assert!(crate::wildcard_match_default(
-            &"longteststring".to_string(),
-            &"longteststring".to_string()
-        ));
-        assert!(!crate::wildcard_match_default(
-            &"longteststring".to_string(),
-            &"*else".to_string()
-        ));
+        assert!(!crate::wildcard_match_default("longteststring", "*else"));
     }
 }
