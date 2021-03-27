@@ -82,16 +82,35 @@ impl Stringr for &str {
     }
 }
 
+/// Returns a new `String` where all specified characters are removed
+///
+/// # Arguments
+///
+/// * `input` - Input `String` to remove chars from
+/// * `chars` - chars to remove
 #[inline]
 pub fn remove_chars(input: &str, chars: HashSet<char>) -> String {
     input.chars().filter(|c| !chars.contains(c)).collect()
 }
 
+/// Returns a new `String` where all whitespace characters are removed
+///
+/// Uses `char::is_whitespace` to determine whitespace characters
+///
+/// # Arguments
+///
+/// * `input` - Input `String` to remove whitespace chars from
 #[inline]
 pub fn remove_whitespace(input: &str) -> String {
     input.chars().filter(|c| !c.is_whitespace()).collect()
 }
 
+/// Splits a `String` every `n`th position
+///
+/// # Arguments
+///
+/// * `input` - Input `String` to split
+/// * `n` - Number of chars every split has
 pub fn splitn(input: &str, n: usize) -> Vec<String> {
     let size = integer::div_ceil(input.len(), n);
     let mut rtn = Vec::with_capacity(size);
