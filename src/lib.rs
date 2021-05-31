@@ -124,11 +124,11 @@ pub fn splitn(input: &str, n: usize) -> Vec<String> {
         i += true_len;
     }
 
-    return rtn;
+    rtn
 }
 
 pub fn splitn_separator(input: &str, n: usize, separator: &str) -> String {
-    if n <= 0 || separator.is_empty() {
+    if n == 0 || separator.is_empty() {
         return input.to_string();
     }
 
@@ -143,7 +143,7 @@ pub fn splitn_separator(input: &str, n: usize, separator: &str) -> String {
         }
     }
 
-    return rtn.into_iter().collect();
+    rtn.into_iter().collect()
 }
 
 pub fn wildcard_match(
@@ -170,20 +170,18 @@ pub fn wildcard_match(
                 lookup[i][j] = lookup[i][j - 1] || lookup[i - 1][j];
             } else if &pattern.chars().nth(j - 1).unwrap() == single_wildcard {
                 lookup[i][j] = lookup[i - 1][j - 1];
-            } else {
-                if ignore_casing {
-                    if input.chars().nth(i - 1).unwrap().to_ascii_lowercase()
-                        == pattern.chars().nth(j - 1).unwrap().to_ascii_lowercase()
-                    {
-                        lookup[i][j] = lookup[i - 1][j - 1];
-                    } else {
-                        lookup[i][j] = false;
-                    }
-                } else if input.chars().nth(i - 1).unwrap() == pattern.chars().nth(j - 1).unwrap() {
+            } else if ignore_casing {
+                if input.chars().nth(i - 1).unwrap().to_ascii_lowercase()
+                    == pattern.chars().nth(j - 1).unwrap().to_ascii_lowercase()
+                {
                     lookup[i][j] = lookup[i - 1][j - 1];
                 } else {
                     lookup[i][j] = false;
                 }
+            } else if input.chars().nth(i - 1).unwrap() == pattern.chars().nth(j - 1).unwrap() {
+                lookup[i][j] = lookup[i - 1][j - 1];
+            } else {
+                lookup[i][j] = false;
             }
 
             j += 1;
@@ -192,7 +190,7 @@ pub fn wildcard_match(
         i += 1;
     }
 
-    return lookup[input.len()][pattern.len()];
+    lookup[input.len()][pattern.len()]
 }
 
 pub fn wildcard_match_default(input: &str, pattern: &str) -> bool {
@@ -202,11 +200,6 @@ pub fn wildcard_match_default(input: &str, pattern: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::Stringr;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 
     #[test]
     fn remove_whitespace() {
