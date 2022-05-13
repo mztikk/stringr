@@ -115,7 +115,7 @@ pub fn splitn(input: &str, n: usize) -> Vec<String> {
     let size = integer::div_ceil(input.len(), n);
     let mut rtn = Vec::with_capacity(size);
 
-    let mut i: usize = 0;
+    let mut i = 0;
 
     while i < input.len() {
         let true_len = cmp::min(n, input.len() - i);
@@ -156,8 +156,11 @@ pub fn wildcard_match(
     let mut lookup = vec![vec![false; pattern.len() + 1]; input.len() + 1];
     lookup[0][0] = true;
 
+    let pattern_chars = pattern.chars().collect::<Vec<char>>();
+    let input_chars = input.chars().collect::<Vec<char>>();
+
     for j in 1..pattern.len() + 1 {
-        if &pattern.chars().nth(j - 1).unwrap() == wildcard {
+        if &pattern_chars[j - 1] == wildcard {
             lookup[0][j] = lookup[0][j - 1];
         }
     }
@@ -166,19 +169,19 @@ pub fn wildcard_match(
     while i <= input.len() {
         let mut j = 1;
         while j <= pattern.len() {
-            if pattern.chars().nth(j - 1).unwrap() == *wildcard {
+            if pattern_chars[j - 1] == *wildcard {
                 lookup[i][j] = lookup[i][j - 1] || lookup[i - 1][j];
-            } else if &pattern.chars().nth(j - 1).unwrap() == single_wildcard {
+            } else if &pattern_chars[j - 1] == single_wildcard {
                 lookup[i][j] = lookup[i - 1][j - 1];
             } else if ignore_casing {
-                if input.chars().nth(i - 1).unwrap().to_ascii_lowercase()
-                    == pattern.chars().nth(j - 1).unwrap().to_ascii_lowercase()
+                if input_chars[i - 1].to_ascii_lowercase()
+                    == pattern_chars[j - 1].to_ascii_lowercase()
                 {
                     lookup[i][j] = lookup[i - 1][j - 1];
                 } else {
                     lookup[i][j] = false;
                 }
-            } else if input.chars().nth(i - 1).unwrap() == pattern.chars().nth(j - 1).unwrap() {
+            } else if input_chars[i - 1] == pattern_chars[j - 1] {
                 lookup[i][j] = lookup[i - 1][j - 1];
             } else {
                 lookup[i][j] = false;
