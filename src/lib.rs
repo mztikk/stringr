@@ -134,16 +134,16 @@ pub fn splitn_separator(input: &str, n: usize, separator: &str) -> String {
 
     let extra_size = integer::div_ceil(input.len(), n) * separator.len() - separator.len();
     let new_size = input.len() + extra_size;
-    let mut rtn: Vec<String> = Vec::with_capacity(new_size);
+    let mut rtn = String::with_capacity(new_size);
     for (i, c) in input.chars().enumerate() {
-        rtn.push(c.to_string());
+        rtn.push(c);
         let j = i + 1;
         if j % n == 0 && j < input.len() {
-            rtn.push(separator.to_string());
+            rtn.push_str(separator);
         }
     }
 
-    rtn.into_iter().collect()
+    rtn
 }
 
 pub fn wildcard_match(
