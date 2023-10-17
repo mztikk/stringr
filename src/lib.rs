@@ -1,7 +1,5 @@
 use std::{cmp, collections::HashSet, usize};
 
-use num::integer;
-
 pub trait Stringr {
     fn remove_chars(&self, chars: HashSet<char>) -> String;
     fn remove_whitespace(&self) -> String;
@@ -112,7 +110,7 @@ pub fn remove_whitespace(input: &str) -> String {
 /// * `input` - Input `String` to split
 /// * `n` - Number of chars every split has
 pub fn splitn(input: &str, n: usize) -> Vec<String> {
-    let size = integer::div_ceil(input.len(), n);
+    let size = input.len().div_ceil(n);
     let mut rtn = Vec::with_capacity(size);
 
     let mut i = 0;
@@ -132,16 +130,16 @@ pub fn splitn_separator(input: &str, n: usize, separator: &str) -> String {
         return input.to_string();
     }
 
-    let extra_size = integer::div_ceil(input.len(), n) * separator.len() - separator.len();
+    let extra_size = input.len().div_ceil(n) * separator.len() - separator.len();
     let new_size = input.len() + extra_size;
     let mut rtn = String::with_capacity(new_size);
-    for (i, c) in input.chars().enumerate() {
+    input.chars().enumerate().for_each(|(i, c)| {
         rtn.push(c);
         let j = i + 1;
         if j % n == 0 && j < input.len() {
             rtn.push_str(separator);
         }
-    }
+    });
 
     rtn
 }
