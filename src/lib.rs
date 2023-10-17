@@ -208,6 +208,18 @@ mod tests {
     }
 
     #[test]
+    fn splitn() {
+        assert_eq!(
+            crate::splitn("AEFF??00FE", 2),
+            vec!["AE", "FF", "??", "00", "FE"]
+        );
+        assert_eq!(
+            crate::splitn("AEFF??00FE", 3),
+            vec!["AEF", "F??", "00F", "E"]
+        );
+    }
+
+    #[test]
     fn splitn_separator() {
         assert_eq!(
             crate::splitn_separator("AEFF??00FE", 2, " "),
