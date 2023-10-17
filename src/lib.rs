@@ -110,6 +110,10 @@ pub fn remove_whitespace(input: &str) -> String {
 /// * `input` - Input `String` to split
 /// * `n` - Number of chars every split has
 pub fn splitn(input: &str, n: usize) -> Vec<String> {
+    if n == 0 {
+        return vec![input.to_string()];
+    }
+
     let size = input.len().div_ceil(n);
     let mut rtn = Vec::with_capacity(size);
 
@@ -209,6 +213,11 @@ mod tests {
 
     #[test]
     fn splitn() {
+        assert_eq!(crate::splitn("AEFF??00FE", 0), vec!["AEFF??00FE"]);
+        assert_eq!(
+            crate::splitn("AEFF??00FE", 1),
+            vec!["A", "E", "F", "F", "?", "?", "0", "0", "F", "E"]
+        );
         assert_eq!(
             crate::splitn("AEFF??00FE", 2),
             vec!["AE", "FF", "??", "00", "FE"]
